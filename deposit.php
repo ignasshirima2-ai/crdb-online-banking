@@ -39,15 +39,16 @@ if (isset($_POST['deposit'])) {
 
         // Record transaction
         $type = 'deposit';
-        $stmt2 = $conn->prepare("
-            INSERT INTO transactions
-            (user_id, sender_account, receiver_account, amount, transaction_type, created_at)
-            VALUES (?, 'BANK', ?, ?, ?, NOW())
-        ");
-        $stmt2->bind_param("issd", $user_id, $user['account_number'], $amount, $type);
-        $stmt2->execute();
+$receiver = $user['account_number'];
 
-        $message = "<p class='amount-in'>Deposit successful! Your new balance is " . number_format($user['balance'] + $amount, 2) . "</p>";
+$stmt2 = $conn->prepare("
+    INSERT INTO transactions
+    (user_id, sender_account, receiver_account, amount, transaction_type)
+    VALUES (?, 'BANK', ?, ?, ?)
+");
+
+$stmt2->bind_param("isds", $user_id, $receiver, $amount, $type);
+$stmt2->execute();
 
         // Refresh user balance
         $user['balance'] += $amount;
